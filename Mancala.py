@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import copy
 
 class Mancala:
     def __init__(self,iteraciones):
@@ -90,8 +91,11 @@ class Mancala:
                         tableroNuevo[1][-(tiro-cont)] = tableroNuevo[1][-(tiro-cont)]+1
                         tableroNuevo[0][tiro] = 0
                     else:
-                        tableroNuevo[0][6-contV] = tableroNuevo[0][6-contV]+1
-                        contV +=1
+                        try:
+                            tableroNuevo[0][6-contV] = tableroNuevo[0][6-contV]+1
+                            contV +=1
+                        except:
+                            pass
                     
                 if(cont == valor):
                     if(tiro-cont == 0):
@@ -111,12 +115,14 @@ class Mancala:
         tableroNuevo = mesaH
         cont = 0
         contV = 0
+        # print("Tiro en movimiento",tiro)
         if(tiro > 0 and tiro < 7 and valor != 0):
             #print("Tablero: ",tablero," tiro ",tiro," valor: ",valor)
             while(cont < valor):
                 cont +=1
                 #print("EL CONTADOR LLEVA",cont)
                 if(tiro+cont == 7):
+                    # print("Entro al if movimiento IA")
                     self.pseudopuntaje1 += 1
                     tableroNuevo[1][tiro+cont] = tableroNuevo[1][tiro+cont]+1
                     tableroNuevo[0][tiro+cont] = tableroNuevo[0][tiro+cont]+1
@@ -133,8 +139,12 @@ class Mancala:
                         tableroNuevo[1][tiro] = 0
                     else:
                         #print("La casilla a cambiar es",contV+1)
-                        tableroNuevo[1][contV+1] = tableroNuevo[1][contV+1]+1
-                        contV +=1
+                        try:
+                            tableroNuevo[1][contV+1] = tableroNuevo[1][contV+1]+1
+                            contV +=1
+                        except:
+                            # print(tableroNuevo)
+                            pass
                     
                 if(cont == valor):
                     if(tiro+cont == 7):
@@ -151,6 +161,7 @@ class Mancala:
         tableroNuevo = mesa
         cont = 0
         contV = 0
+        # print("Tiro en IA",tiro)
         if(tiro > 0 and tiro < 7 and valor != 0):
             #print("Entro el if al metodo pseudo")
             #print("Tablero: ",tablero," tiro ",tiro," valor: ",valor)
@@ -159,7 +170,7 @@ class Mancala:
                 cont +=1
                 #print("El tiro menos el cont es",(tiro-cont))
                 if(tiro-cont == 0):
-                    
+                    # print("Entro al if movimiento IA")
                     self.pseudopuntaje2 += 1
                     tableroNuevo[1][tiro-cont] = tableroNuevo[1][tiro-cont]+1
                     tableroNuevo[0][tiro-cont] = tableroNuevo[0][tiro-cont]+1
@@ -303,14 +314,18 @@ class Mancala:
         else:
             for i in range(0,self.iteraciones):
                 #print("Entro al For y es la vuelta ",i)
+                self.copia = self.tablero.copy()
                 indice = random.randint(0,len(self.filtro)-1)
                 #print("Indice ",indice)
                 self.totales[indice] = self.totales[indice] + 1
                 jugadaInicial = self.filtro[indice]
                 tiro = jugadaInicial
                 valor = self.copia[0][jugadaInicial]
-                self.pseudopuntaje1 = self.puntaje1
-                self.pseudopuntaje2 = self.puntaje2
+                self.pseudopuntaje1 = copy.deepcopy(self.puntaje1)
+                self.pseudopuntaje2 = copy.deepcopy(self.puntaje2)
+                # print("Primer pseudopuntaje2",self.pseudopuntaje2)
+                # print(" Primer pseudopuntaje1",self.pseudopuntaje1)
+                
                 pseudofinish = False
                 
                 while(pseudofinish == False):
@@ -343,8 +358,8 @@ class Mancala:
                 #Si gana la maquina le suma un punto al array de resultados
                 if(self.pseudopuntaje2 > self.pseudopuntaje1):
                     self.resultados[indice] += 1
-                print("pseudopuntaje2",self.pseudopuntaje2)
-                print("pseudopuntaje1",self.pseudopuntaje1)
+                # print("pseudopuntaje2",self.pseudopuntaje2)
+                # print("pseudopuntaje1",self.pseudopuntaje1)
                
                 #print("aun no finaliza")
             #Se compara quien fue el mejor resultado entre todos
