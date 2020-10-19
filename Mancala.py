@@ -2,12 +2,18 @@ import numpy as np
 import random
 
 class Mancala:
-    def __init__(self):
+    def __init__(self,iteraciones):
         self.turno = True
         self.puntaje1 = 0
         self.puntaje2 = 0
         self.tablero = np.full((2, 8), 4)
         self.finish = False
+        #Variables para montecarlo
+        self.iteraciones = iteraciones
+        self.filtro = [] #Opciones disponibles a poder jugar
+        self.copia = self.tablero
+        self.resultados = [] #Array donde se van a guardar los resultados de victorias
+        self.iteraciones = 0 #Cantidad de vueltas para monte carlo
 
     def showTablero(self):
         print(self.tablero)
@@ -117,11 +123,46 @@ class Mancala:
                 
 
                 
+    #=========================== Montecarlo ==================================================
+    # Metodo para filtrar posiciones donde hay fichas disponibles y se pueden realizar jugadas
+    def filtrado(self):
+        for i in range(1,7):
+            if(self.tablero[0][i] > 0):
+                self.filtro.append(i)
+        self.resultados = [0 for i in range()]
+        
+    def simularJuego(self):
+        if self.iteraciones == 0: #Noob
+            return random.randint(0,len(self.filtro))
+        else:
+            jugadaInicial = self.filtro[random.randint(0,len(self.filtro))]
+            #for i in range(0,self.iteraciones):
+                ### PONER LOGICA DEL JUEGO AQUI
 
-juego = Mancala()
+x = True
+iteraciones = 0
+while x:
+    print(""" 
+        Noob        => 1\n
+        Avanzado    => 2\n
+        Pro         => 3\n 
+    """)
+    op = int(input('¿Que nivel desea la IA? \n'))
+    if(op > 3 or op<1):
+        print("Debe ingresar un valor entre 1 y 3")
+    else:
+        if op == 1:
+            iteraciones = 0
+        elif op == 2:
+            iteraciones = 500
+        elif op == 3:
+            iteraciones = 10000
+        x = False
+        
+
+
+juego = Mancala(iteraciones)
 juego.Iniciarjuego()
-# juego.showTablero()
-
 
 # matriz de 7 x 2
 # 0 3 1 4 2 6 0
