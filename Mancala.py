@@ -112,7 +112,7 @@ class Mancala:
         cont = 0
         contV = 0
         if(tiro > 0 and tiro < 7 and valor != 0):
-            print("Tablero: ",tablero," tiro ",tiro," valor: ",valor)
+            #print("Tablero: ",tablero," tiro ",tiro," valor: ",valor)
             while(cont < valor):
                 cont +=1
                 #print("EL CONTADOR LLEVA",cont)
@@ -142,8 +142,8 @@ class Mancala:
                         self.turno = False
         else:
             self.turno = True
-        print("finalizo pseudohumano")
-        print("Tablero",tablero)
+        #print("finalizo pseudohumano")
+        #print("Tablero",tablero)
         return tableroNuevo, self.turno
 
     def pseudomovimientoIA(self, tablero, tiro, valor):
@@ -151,8 +151,8 @@ class Mancala:
         cont = 0
         contV = 0
         if(tiro > 0 and tiro < 7 and valor != 0):
-            print("Entro el if al metodo pseudo")
-            print("Tablero: ",tablero," tiro ",tiro," valor: ",valor)
+            #print("Entro el if al metodo pseudo")
+            #print("Tablero: ",tablero," tiro ",tiro," valor: ",valor)
             # SI EL VALOR - TIRO ES 0 SE SUMA PUNTO
             while(cont < valor):
                 cont +=1
@@ -183,11 +183,11 @@ class Mancala:
                         self.turno = False
                     else:
                         self.turno = True
-                print("Continua en el while del pseudo")
+                #print("Continua en el while del pseudo")
         else:
             self.turno = False
-        print("Finalizo IA")
-        print("Tablero",tablero)
+        #print("Finalizo IA")
+        #print("Tablero",tablero)
         return tableroNuevo, self.turno
 
     def Iniciarjuego(self):
@@ -197,60 +197,84 @@ class Mancala:
         self.tablero[1][0] = 0
         self.tablero[0][7] = 0
         self.tablero[1][7] = 0
-        print("Tablero")
-        print(self.tablero)
-        print("    1 2 3 4 5 6")
+        #print("Tablero")
+        #print(self.tablero)
+        #print("    1 2 3 4 5 6")
 
         while(self.finish == False):
-            while(self.turno):
-                
+            self.finish = self.finalizar(self.tablero)
+            if(self.finish):
+                print("ENTRO AL BREAK GENERAL")
+                break
+            
+            while(self.turno and self.finish == False):
+                print(self.tablero)
+                print("    1 2 3 4 5 6")
                 tiro = int(input("Ingresa tu casilla: "))
                 #print("En la posicion",tiro,"esta el valor",self.tablero[1][tiro])
                 valor = self.tablero[1][tiro]
                 #print("Me movere",valor,"veces")
                 self.tablero, self.turno = self.movimiento(self.tablero,tiro,valor)
+                
+                self.finish = self.finalizar(self.tablero)
+                if(self.finish):
+                    print("ENTRO AL BREAK DEL HUMANO")
+                    break
+                
+            while(self.turno == False and self.finish == False):
                 print(self.tablero)
                 print("    1 2 3 4 5 6")
-                
-            while(self.turno == False):
                 self.filtrado() #Obtener valor de casillas con valor
-                self.copia = self.tablero
+                
                 tiro = self.simularJuego()
+                print("-"*50)
+                print(self.tablero)
+                print("    1 2 3 4 5 6")
+                print("-"*50)
+                self.copia = self.tablero
                 # tiro = random.randint(1,6)
                 #print("En la posicion",tiro,"esta el valor",self.tablero[1][tiro])
                 valor = self.tablero[0][tiro]
+                
                 #print("Me movere",valor,"veces")
                 print("el tiro de la IA es",tiro)
                 self.tablero, self.turno = self.movimientoIA(self.tablero,tiro,valor)
+                
+                self.finish = self.finalizar(self.tablero)
+                print("/"*50)
                 print(self.tablero)
                 print("    1 2 3 4 5 6")
+                print("/"*50)
+                if(self.finish):
+                    print("ENTRO AL BREAK DEL IA")
+                    break
             
-            self.finish = self.finalizar()
+            
                 
 
                 
-    def finalizar(self):
-        bandera = True
-        for i in range(1,7):
-            if self.tablero[0][i] > 0:
-                print("Entro if finalizar")
-                bandera = False
-            if self.tablero[1][i] > 0:
-                print("Entro if finalizar ")
-                bandera = False
-        print(bandera)
+    def finalizar(self, tablero):
+        bandera = False
+        cerosH = np.count_nonzero(tablero[1,1:7])
+        
+        cerosIA = np.count_nonzero(tablero[0,1:7])
+        #print("CEROSIA",cerosIA)
+        #print("CEROSH",cerosH)
+        if cerosH == 0 or cerosIA == 0:
+            bandera = True
+        #print(bandera)
         return bandera
 
     def pseudofinalizar(self):
-        bandera = True
-        for i in range(1,7):
-            if self.copia[0][i] > 0 and self.copia[1][i] > 0:
-                print("Entro if finalizar")
-                bandera = False
-            # if :
-            #     print("Entro if finalizar ")
-            #     bandera = False
-        print(bandera)
+        bandera = False
+        cerosH = np.count_nonzero(self.copia[1,1:7])
+        
+        cerosIA = np.count_nonzero(self.copia[0,1:7])
+        #print("CEROSIA",cerosIA)
+        #print("CEROSH",cerosH)
+        if cerosH == 0 or cerosIA == 0:
+            bandera = True
+        #print(bandera)
         return bandera
             
     #=========================== Montecarlo ==================================================
@@ -272,12 +296,16 @@ class Mancala:
 
     def simularJuego(self):
         if self.iteraciones == 0: #Noob
-            return self.filtro[random.randint(0,len(self.filtro))]
+            noob = random.randint(0,len(self.filtro)-1)
+            print(len(self.filtro),"largo")
+            print (noob)
+            print(self.filtro)
+            return self.filtro[noob]
         else:
             for i in range(0,self.iteraciones):
-                print("Entro al For y es la vuelta ",i)
-                indice = random.randint(0,len(self.filtro))
-                print("Indice ",indice)
+                #print("Entro al For y es la vuelta ",i)
+                indice = random.randint(0,len(self.filtro)-1)
+                #print("Indice ",indice)
                 self.totales[indice] = self.totales[indice] + 1
                 jugadaInicial = self.filtro[indice]
                 tiro = jugadaInicial
@@ -285,16 +313,33 @@ class Mancala:
                 self.pseudopuntaje1 = self.puntaje1
                 self.pseudopuntaje2 = self.puntaje2
                 pseudofinish = False
+                
                 while(pseudofinish == False):
                     ### PONER LOGICA DEL JUEGO AQUI
-                    while(self.turno == False):
+                    pseudofinish = self.pseudofinalizar()
+                    if(pseudofinish):
+                        #print("ENTRO AL BREAK GENERAL")
+                        break
+            
+                    while(self.turno == False and pseudofinish == False):
                         self.copia, self.turno = self.pseudomovimientoIA(self.copia,tiro,self.copia[0][tiro])
                         tiro = random.randint(1,6)
-                    while(self.turno):
+                        pseudofinish = self.pseudofinalizar()
+                        if(pseudofinish):
+                            #print("ENTRO AL BREAK DEL IA")
+                            break
+
+                    while(self.turno and pseudofinish == False):
                         tiro = random.randint(1,6)
                         self.copia, self.turno =  self.pseudomovimiento(self.copia,tiro,self.copia[1][tiro])
+                        pseudofinish = self.pseudofinalizar()
+                        if(pseudofinish):
+                            #print("ENTRO AL BREAK DEL HUMANO")
+                            break
+
+
                     #Condicion de cuando termine la partida
-                    pseudofinish = self.pseudofinalizar()
+                    #pseudofinish = self.pseudofinalizar()
                     tiro = random.randint(1,6)
                 #Validar quien gano o no
                 #Si gana la maquina le suma un punto al array de resultados
@@ -302,7 +347,7 @@ class Mancala:
                     self.resultados[indice] += 1
                 else:
                     self.resultados[indice] += 0
-                print("aun no finaliza")
+                #print("aun no finaliza")
             #Se compara quien fue el mejor resultado entre todos
             print("Filtros: "+str(self.filtro))
             print("Resultados: "+str(self.resultados))
@@ -334,7 +379,7 @@ while x:
         if op == 1:
             iteraciones = 0
         elif op == 2:
-            iteraciones = 15
+            iteraciones = 100
         elif op == 3:
             iteraciones = 10000
         x = False
