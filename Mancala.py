@@ -216,7 +216,7 @@ class Mancala:
         while(self.finish == False):
             self.finish = self.finalizar(self.tablero)
             if(self.finish):
-                print("ENTRO AL BREAK GENERAL")
+                #print("ENTRO AL BREAK GENERAL")
                 break
             
             while(self.turno and self.finish == False):
@@ -230,7 +230,7 @@ class Mancala:
                 
                 self.finish = self.finalizar(self.tablero)
                 if(self.finish):
-                    print("ENTRO AL BREAK DEL HUMANO")
+                    #print("ENTRO AL BREAK DEL HUMANO")
                     break
                 
             while(self.turno == False and self.finish == False):
@@ -256,9 +256,18 @@ class Mancala:
                 #print("    1 2 3 4 5 6")
                 #print("/"*50)
                 if(self.finish):
-                    print("ENTRO AL BREAK DEL IA")
+                    #print("ENTRO AL BREAK DEL IA")
                     break
-            
+        print("FIN DEL JUEGO")
+        print(self.tablero)
+        print("Puntos IA",self.tablero[0][0])
+        print("Puntos Humano",self.tablero[1][7])
+        if(self.tablero[0][0]>self.tablero[1][7]):
+            print("PERDISTE")
+        elif(self.tablero[0][0]<self.tablero[1][7]):
+            print("GANASTE")
+        else:
+            print("EMPATE")
             
                 
 
