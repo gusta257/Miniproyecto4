@@ -14,7 +14,7 @@ class Mancala:
         self.iteraciones = iteraciones
         self.filtro = [] #Opciones disponibles a poder jugar
         self.filtro2 = []
-        self.copia = self.tablero
+        self.copia = self.tablero.copy()
         self.resultados = [] #Array donde se van a guardar los resultados de victorias
         self.totales = []
         # self.iteraciones = 0 #Cantidad de vueltas para monte carlo
@@ -107,8 +107,8 @@ class Mancala:
         return tableroNuevo, self.turno
 
 
-    def pseudomovimiento(self, tablero, tiro, valor):
-        tableroNuevo = tablero
+    def pseudomovimiento(self, mesaH, tiro, valor):
+        tableroNuevo = mesaH
         cont = 0
         contV = 0
         if(tiro > 0 and tiro < 7 and valor != 0):
@@ -118,21 +118,22 @@ class Mancala:
                 #print("EL CONTADOR LLEVA",cont)
                 if(tiro+cont == 7):
                     self.pseudopuntaje1 += 1
-                    tablero[1][tiro+cont] = tablero[1][tiro+cont]+1
-                    tablero[0][tiro+cont] = tablero[0][tiro+cont]+1
-                    tablero[1][tiro] = 0
+                    tableroNuevo[1][tiro+cont] = tableroNuevo[1][tiro+cont]+1
+                    tableroNuevo[0][tiro+cont] = tableroNuevo[0][tiro+cont]+1
+                    tableroNuevo[1][tiro] = 0
                     
                 elif(tiro+cont < 7):
-                    tablero[1][tiro+cont] = tablero[1][tiro+cont]+1
-                    tablero[1][tiro] = 0
+                    tableroNuevo[1][tiro+cont] = tableroNuevo[1][tiro+cont]+1
+                    tableroNuevo[1][tiro] = 0
                     
                 elif(tiro+cont > 7):
                     #print("QUE VALORES LLEVA ESTO",6-(valor-cont))
                     if(6-(valor-cont) > 0):
-                        tablero[0][6-(valor-cont)] = tablero[0][6-(valor-cont)]+1
-                        tablero[1][tiro] = 0
+                        tableroNuevo[0][6-(valor-cont)] = tableroNuevo[0][6-(valor-cont)]+1
+                        tableroNuevo[1][tiro] = 0
                     else:
-                        tablero[1][contV+1] = tablero[1][contV+1]+1
+                        #print("La casilla a cambiar es",contV+1)
+                        tableroNuevo[1][contV+1] = tableroNuevo[1][contV+1]+1
                         contV +=1
                     
                 if(cont == valor):
@@ -146,8 +147,8 @@ class Mancala:
         #print("Tablero",tablero)
         return tableroNuevo, self.turno
 
-    def pseudomovimientoIA(self, tablero, tiro, valor):
-        tableroNuevo = tablero
+    def pseudomovimientoIA(self, mesa, tiro, valor):
+        tableroNuevo = mesa
         cont = 0
         contV = 0
         if(tiro > 0 and tiro < 7 and valor != 0):
@@ -226,12 +227,10 @@ class Mancala:
                 print("    1 2 3 4 5 6")
                 self.filtrado() #Obtener valor de casillas con valor
                 
+                
                 tiro = self.simularJuego()
-                print("-"*50)
-                print(self.tablero)
-                print("    1 2 3 4 5 6")
-                print("-"*50)
-                self.copia = self.tablero
+
+                self.copia = self.tablero.copy()
                 # tiro = random.randint(1,6)
                 #print("En la posicion",tiro,"esta el valor",self.tablero[1][tiro])
                 valor = self.tablero[0][tiro]
@@ -241,10 +240,10 @@ class Mancala:
                 self.tablero, self.turno = self.movimientoIA(self.tablero,tiro,valor)
                 
                 self.finish = self.finalizar(self.tablero)
-                print("/"*50)
-                print(self.tablero)
-                print("    1 2 3 4 5 6")
-                print("/"*50)
+                #print("/"*50)
+                #print(self.tablero)
+                #print("    1 2 3 4 5 6")
+                #print("/"*50)
                 if(self.finish):
                     print("ENTRO AL BREAK DEL IA")
                     break
@@ -297,9 +296,9 @@ class Mancala:
     def simularJuego(self):
         if self.iteraciones == 0: #Noob
             noob = random.randint(0,len(self.filtro)-1)
-            print(len(self.filtro),"largo")
-            print (noob)
-            print(self.filtro)
+            #print(len(self.filtro),"largo")
+            #print (noob)
+            #print(self.filtro)
             return self.filtro[noob]
         else:
             for i in range(0,self.iteraciones):
@@ -337,7 +336,6 @@ class Mancala:
                             #print("ENTRO AL BREAK DEL HUMANO")
                             break
 
-
                     #Condicion de cuando termine la partida
                     #pseudofinish = self.pseudofinalizar()
                     tiro = random.randint(1,6)
@@ -345,17 +343,20 @@ class Mancala:
                 #Si gana la maquina le suma un punto al array de resultados
                 if(self.pseudopuntaje2 > self.pseudopuntaje1):
                     self.resultados[indice] += 1
-                else:
-                    self.resultados[indice] += 0
+                print("pseudopuntaje2",self.pseudopuntaje2)
+                print("pseudopuntaje1",self.pseudopuntaje1)
+               
                 #print("aun no finaliza")
             #Se compara quien fue el mejor resultado entre todos
-            print("Filtros: "+str(self.filtro))
-            print("Resultados: "+str(self.resultados))
+            #print("Filtros: "+str(self.filtro))
+            #print("Resultados: "+str(self.resultados))
+            #print("totales",self.totales)
             valorelegir = []
             for j in range(0,len(self.resultados)):
                 promedio =  self.resultados[j]/self.totales[j]
+                
                 valorelegir.append(promedio)
-            print("Valor a elegir"+str(valorelegir))
+            #print("Valor a elegir"+str(valorelegir))
             #Obtener cual fue el mejor promedio para elegir jugada
             tironuevo = valorelegir.index(max(valorelegir))
             self.turno = False
@@ -379,7 +380,7 @@ while x:
         if op == 1:
             iteraciones = 0
         elif op == 2:
-            iteraciones = 100
+            iteraciones = 500
         elif op == 3:
             iteraciones = 10000
         x = False
