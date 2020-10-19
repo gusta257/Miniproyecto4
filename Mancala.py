@@ -15,7 +15,7 @@ class Mancala:
     def movimiento(self, tablero, tiro, valor):
         tableroNuevo = tablero
         cont = 0
-        if(tiro > 0 and tiro < 7):
+        if(tiro > 0 and tiro < 7 and valor != 0):
             while(cont < valor):
                 cont +=1
                 if(tiro+cont == 7):
@@ -35,20 +35,57 @@ class Mancala:
                     
                 if(cont == valor):
                     if(tiro+cont == 7):
-                        print("me toca de nuevo")
+                        print("Turno Humano")
                         self.turno = True
                     else:
-                        print("no me toca de nuevo :(")
+                        print("Turno IA")
                         self.turno = False
         else:
             print("no puedes escoger ese valor")
             self.turno = True
-        
+        print("*"*50)
+        return tableroNuevo, self.turno
+
+    def movimientoIA(self, tablero, tiro, valor):
+        tableroNuevo = tablero
+        cont = 0
+        if(tiro > 0 and tiro < 7 and valor != 0):
+            # SI EL VALOR - TIRO ES 0 SE SUMA PUNTO
+            while(cont < valor):
+                cont +=1
+                #print("El tiro menos el cont es",(tiro-cont))
+                if(tiro-cont == 0):
+                    
+                    self.puntaje2 += 1
+                    tableroNuevo[1][tiro-cont] = tableroNuevo[1][tiro-cont]+1
+                    tableroNuevo[0][tiro-cont] = tableroNuevo[0][tiro-cont]+1
+                    tableroNuevo[0][tiro] = 0
+                    
+                elif(tiro-cont > 0):
+                    
+                    tableroNuevo[0][tiro-cont] = tableroNuevo[0][tiro-cont]+1
+                    tableroNuevo[0][tiro] = 0
+                    
+                elif(tiro-cont < 0):
+                    tableroNuevo[1][-(tiro-cont)] = tableroNuevo[1][-(tiro-cont)]+1
+                    tableroNuevo[0][tiro] = 0
+                    
+                if(cont == valor):
+                    if(tiro-cont == 0):
+                        print("Turno IA")
+                        self.turno = False
+                    else:
+                        print("Turno Jugador")
+                        self.turno = True
+        else:
+            print("no puedes escoger ese valor")
+            self.turno = False
+        print("*"*50)
         return tableroNuevo, self.turno
 
     def Iniciarjuego(self):
-        #self.tablero = np.full((2, 8), 4)
-        self.tablero = np.random.randint(4, size=(2, 8))
+        self.tablero = np.full((2, 8), 4)
+        #self.tablero = np.random.randint(4, size=(2, 8))
         self.tablero[0][0] = 0
         self.tablero[1][0] = 0
         self.tablero[0][7] = 0
@@ -57,15 +94,28 @@ class Mancala:
         print(self.tablero)
         print("    1 2 3 4 5 6")
 
-        while(self.finish == False and self.turno):
-            
-            tiro = int(input("Ingresa tu casilla: "))
-            #print("En la posicion",tiro,"esta el valor",self.tablero[1][tiro])
-            valor = self.tablero[1][tiro]
-            #print("Me movere",valor,"veces")
-            self.tablero, self.turno = self.movimiento(self.tablero,tiro,valor)
-            print(self.tablero)
-            print("    1 2 3 4 5 6")
+        while(self.finish == False):
+            while(self.turno):
+                
+                tiro = int(input("Ingresa tu casilla: "))
+                #print("En la posicion",tiro,"esta el valor",self.tablero[1][tiro])
+                valor = self.tablero[1][tiro]
+                #print("Me movere",valor,"veces")
+                self.tablero, self.turno = self.movimiento(self.tablero,tiro,valor)
+                print(self.tablero)
+                print("    1 2 3 4 5 6")
+                
+            while(self.turno == False):
+                tiro = random.randint(1,6)
+                #print("En la posicion",tiro,"esta el valor",self.tablero[1][tiro])
+                valor = self.tablero[0][tiro]
+                #print("Me movere",valor,"veces")
+                print("el tiro de la IA es",tiro)
+                self.tablero, self.turno = self.movimientoIA(self.tablero,tiro,valor)
+                print(self.tablero)
+                print("    1 2 3 4 5 6")
+                
+
                 
 
 juego = Mancala()
