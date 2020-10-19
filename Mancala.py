@@ -6,14 +6,18 @@ class Mancala:
         self.turno = True
         self.puntaje1 = 0
         self.puntaje2 = 0
+        self.pseudopuntaje = 0
+        self.pseudopuntaje2 = 0
         self.tablero = np.full((2, 8), 4)
         self.finish = False
         #Variables para montecarlo
         self.iteraciones = iteraciones
         self.filtro = [] #Opciones disponibles a poder jugar
+        self.filtro2 = []
         self.copia = self.tablero
         self.resultados = [] #Array donde se van a guardar los resultados de victorias
-        self.iteraciones = 0 #Cantidad de vueltas para monte carlo
+        self.totales = []
+        # self.iteraciones = 0 #Cantidad de vueltas para monte carlo
 
     def showTablero(self):
         print(self.tablero)
@@ -102,6 +106,90 @@ class Mancala:
         print("*"*50)
         return tableroNuevo, self.turno
 
+
+    def pseudomovimiento(self, tablero, tiro, valor):
+        tableroNuevo = tablero
+        cont = 0
+        contV = 0
+        if(tiro > 0 and tiro < 7 and valor != 0):
+            print("Tablero: ",tablero," tiro ",tiro," valor: ",valor)
+            while(cont < valor):
+                cont +=1
+                #print("EL CONTADOR LLEVA",cont)
+                if(tiro+cont == 7):
+                    self.pseudopuntaje1 += 1
+                    tablero[1][tiro+cont] = tablero[1][tiro+cont]+1
+                    tablero[0][tiro+cont] = tablero[0][tiro+cont]+1
+                    tablero[1][tiro] = 0
+                    
+                elif(tiro+cont < 7):
+                    tablero[1][tiro+cont] = tablero[1][tiro+cont]+1
+                    tablero[1][tiro] = 0
+                    
+                elif(tiro+cont > 7):
+                    #print("QUE VALORES LLEVA ESTO",6-(valor-cont))
+                    if(6-(valor-cont) > 0):
+                        tablero[0][6-(valor-cont)] = tablero[0][6-(valor-cont)]+1
+                        tablero[1][tiro] = 0
+                    else:
+                        tablero[1][contV+1] = tablero[1][contV+1]+1
+                        contV +=1
+                    
+                if(cont == valor):
+                    if(tiro+cont == 7):
+                        self.turno = True
+                    else:
+                        self.turno = False
+        else:
+            self.turno = True
+        print("finalizo pseudohumano")
+        print("Tablero",tablero)
+        return tableroNuevo, self.turno
+
+    def pseudomovimientoIA(self, tablero, tiro, valor):
+        tableroNuevo = tablero
+        cont = 0
+        contV = 0
+        if(tiro > 0 and tiro < 7 and valor != 0):
+            print("Entro el if al metodo pseudo")
+            print("Tablero: ",tablero," tiro ",tiro," valor: ",valor)
+            # SI EL VALOR - TIRO ES 0 SE SUMA PUNTO
+            while(cont < valor):
+                cont +=1
+                #print("El tiro menos el cont es",(tiro-cont))
+                if(tiro-cont == 0):
+                    
+                    self.pseudopuntaje2 += 1
+                    tableroNuevo[1][tiro-cont] = tableroNuevo[1][tiro-cont]+1
+                    tableroNuevo[0][tiro-cont] = tableroNuevo[0][tiro-cont]+1
+                    tableroNuevo[0][tiro] = 0
+                    
+                elif(tiro-cont > 0):
+                    
+                    tableroNuevo[0][tiro-cont] = tableroNuevo[0][tiro-cont]+1
+                    tableroNuevo[0][tiro] = 0
+                    
+                elif(tiro-cont < 0):
+                    #print(-(tiro-cont))
+                    if(-(tiro-cont)<7):
+                        tableroNuevo[1][-(tiro-cont)] = tableroNuevo[1][-(tiro-cont)]+1
+                        tableroNuevo[0][tiro] = 0
+                    else:
+                        tableroNuevo[0][6-contV] = tableroNuevo[0][6-contV]+1
+                        contV +=1
+                    
+                if(cont == valor):
+                    if(tiro-cont == 0):
+                        self.turno = False
+                    else:
+                        self.turno = True
+                print("Continua en el while del pseudo")
+        else:
+            self.turno = False
+        print("Finalizo IA")
+        print("Tablero",tablero)
+        return tableroNuevo, self.turno
+
     def Iniciarjuego(self):
         self.tablero = np.full((2, 8), 4)
         #self.tablero = np.random.randint(4, size=(2, 8))
@@ -125,7 +213,10 @@ class Mancala:
                 print("    1 2 3 4 5 6")
                 
             while(self.turno == False):
-                tiro = random.randint(1,6)
+                self.filtrado() #Obtener valor de casillas con valor
+                self.copia = self.tablero
+                tiro = self.simularJuego()
+                # tiro = random.randint(1,6)
                 #print("En la posicion",tiro,"esta el valor",self.tablero[1][tiro])
                 valor = self.tablero[0][tiro]
                 #print("Me movere",valor,"veces")
@@ -133,24 +224,100 @@ class Mancala:
                 self.tablero, self.turno = self.movimientoIA(self.tablero,tiro,valor)
                 print(self.tablero)
                 print("    1 2 3 4 5 6")
+            
+            self.finish = self.finalizar()
                 
 
                 
+    def finalizar(self):
+        bandera = True
+        for i in range(1,7):
+            if self.tablero[0][i] > 0:
+                print("Entro if finalizar")
+                bandera = False
+            if self.tablero[1][i] > 0:
+                print("Entro if finalizar ")
+                bandera = False
+        print(bandera)
+        return bandera
+
+    def pseudofinalizar(self):
+        bandera = True
+        for i in range(1,7):
+            if self.copia[0][i] > 0 and self.copia[1][i] > 0:
+                print("Entro if finalizar")
+                bandera = False
+            # if :
+            #     print("Entro if finalizar ")
+            #     bandera = False
+        print(bandera)
+        return bandera
+            
     #=========================== Montecarlo ==================================================
     # Metodo para filtrar posiciones donde hay fichas disponibles y se pueden realizar jugadas
     def filtrado(self):
+        self.filtro = []
         for i in range(1,7):
             if(self.tablero[0][i] > 0):
                 self.filtro.append(i)
-        self.resultados = [0 for i in range()]
-        
+        self.resultados = [0 for i in range(0,len(self.filtro))]
+        self.totales = [0 for i in range(0,len(self.filtro))]
+    
+    def filtrado2(self):
+        self.filtro2 = []
+        for i in range(1,7):
+            if(self.copia[1][i] > 0):
+                self.filtro2.append(i)
+    
+
     def simularJuego(self):
         if self.iteraciones == 0: #Noob
-            return random.randint(0,len(self.filtro))
+            return self.filtro[random.randint(0,len(self.filtro))]
         else:
-            jugadaInicial = self.filtro[random.randint(0,len(self.filtro))]
-            #for i in range(0,self.iteraciones):
-                ### PONER LOGICA DEL JUEGO AQUI
+            for i in range(0,self.iteraciones):
+                print("Entro al For y es la vuelta ",i)
+                indice = random.randint(0,len(self.filtro))
+                print("Indice ",indice)
+                self.totales[indice] = self.totales[indice] + 1
+                jugadaInicial = self.filtro[indice]
+                tiro = jugadaInicial
+                valor = self.copia[0][jugadaInicial]
+                self.pseudopuntaje1 = self.puntaje1
+                self.pseudopuntaje2 = self.puntaje2
+                pseudofinish = False
+                while(pseudofinish == False):
+                    ### PONER LOGICA DEL JUEGO AQUI
+                    while(self.turno == False):
+                        self.copia, self.turno = self.pseudomovimientoIA(self.copia,tiro,self.copia[0][tiro])
+                        tiro = random.randint(1,6)
+                    while(self.turno):
+                        tiro = random.randint(1,6)
+                        self.copia, self.turno =  self.pseudomovimiento(self.copia,tiro,self.copia[1][tiro])
+                    #Condicion de cuando termine la partida
+                    pseudofinish = self.pseudofinalizar()
+                    tiro = random.randint(1,6)
+                #Validar quien gano o no
+                #Si gana la maquina le suma un punto al array de resultados
+                if(self.pseudopuntaje2 > self.pseudopuntaje1):
+                    self.resultados[indice] += 1
+                else:
+                    self.resultados[indice] += 0
+                print("aun no finaliza")
+            #Se compara quien fue el mejor resultado entre todos
+            print("Filtros: "+str(self.filtro))
+            print("Resultados: "+str(self.resultados))
+            valorelegir = []
+            for j in range(0,len(self.resultados)):
+                promedio =  self.resultados[j]/self.totales[j]
+                valorelegir.append(promedio)
+            print("Valor a elegir"+str(valorelegir))
+            #Obtener cual fue el mejor promedio para elegir jugada
+            tironuevo = valorelegir.index(max(valorelegir))
+            self.turno = False
+            return self.filtro[tironuevo]
+                    
+                
+
 
 x = True
 iteraciones = 0
@@ -167,7 +334,7 @@ while x:
         if op == 1:
             iteraciones = 0
         elif op == 2:
-            iteraciones = 500
+            iteraciones = 15
         elif op == 3:
             iteraciones = 10000
         x = False
