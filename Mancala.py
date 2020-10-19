@@ -21,9 +21,11 @@ class Mancala:
     def movimiento(self, tablero, tiro, valor):
         tableroNuevo = tablero
         cont = 0
+        contV = 0
         if(tiro > 0 and tiro < 7 and valor != 0):
             while(cont < valor):
                 cont +=1
+                #print("EL CONTADOR LLEVA",cont)
                 if(tiro+cont == 7):
                     print("punto")
                     self.puntaje1 += 1
@@ -36,8 +38,13 @@ class Mancala:
                     tablero[1][tiro] = 0
                     
                 elif(tiro+cont > 7):
-                    tablero[0][6-(valor-cont)] = tablero[0][6-(valor-cont)]+1
-                    tablero[1][tiro] = 0
+                    #print("QUE VALORES LLEVA ESTO",6-(valor-cont))
+                    if(6-(valor-cont) > 0):
+                        tablero[0][6-(valor-cont)] = tablero[0][6-(valor-cont)]+1
+                        tablero[1][tiro] = 0
+                    else:
+                        tablero[1][contV+1] = tablero[1][contV+1]+1
+                        contV +=1
                     
                 if(cont == valor):
                     if(tiro+cont == 7):
@@ -55,6 +62,7 @@ class Mancala:
     def movimientoIA(self, tablero, tiro, valor):
         tableroNuevo = tablero
         cont = 0
+        contV = 0
         if(tiro > 0 and tiro < 7 and valor != 0):
             # SI EL VALOR - TIRO ES 0 SE SUMA PUNTO
             while(cont < valor):
@@ -73,8 +81,13 @@ class Mancala:
                     tableroNuevo[0][tiro] = 0
                     
                 elif(tiro-cont < 0):
-                    tableroNuevo[1][-(tiro-cont)] = tableroNuevo[1][-(tiro-cont)]+1
-                    tableroNuevo[0][tiro] = 0
+                    #print(-(tiro-cont))
+                    if(-(tiro-cont)<7):
+                        tableroNuevo[1][-(tiro-cont)] = tableroNuevo[1][-(tiro-cont)]+1
+                        tableroNuevo[0][tiro] = 0
+                    else:
+                        tableroNuevo[0][6-contV] = tableroNuevo[0][6-contV]+1
+                        contV +=1
                     
                 if(cont == valor):
                     if(tiro-cont == 0):
